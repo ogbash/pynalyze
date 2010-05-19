@@ -150,6 +150,7 @@ class ControlFlowModel(object):
         self._allBasicBlocks = None
 
     def generateBlocks(self, parentBlock, statements):
+        statments = list(statements)
         blocks = []
         
         simpleStatements = []
