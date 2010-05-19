@@ -248,3 +248,45 @@ class ControlFlowModel(object):
             clConnections[(clBlockFrom,clBlockTo)].append((blockFrom,blockTo))
 
         return clConnections
+
+    def collectASTObjects(self):
+        """Returns dictionary containing a set of AST objects for each block,
+        including those in subblocks for the block."""
+
+        astObjects = {} # block -> astObjects
+
+        def collect(block):
+            # add all AST objects of the subblocks
+            astObjsForSubBlocks = map(lambda b: astObjects[b], block.subBlocks)
+            #  plus the objects of the block itself
+            objs = reduce(set.union, astObjsForSubBlocks, set(block.astObjects))
+            astObjects[block] = objs
+
+        self.block.itertree(collect)
+
+        return astObjects        
+
+    def findBlocksByObject(self, astObj, onlyBlocks=None):
+        """Find basic blocks (limited by onlyBlocks) that contain the given astObj.
+
+        @todo: may be inefficient, better to use information about astObj while searching
+        """
+        blocks = set()
+
+        if onlyBlocks==None:
+            onlyBlocks = self.getAllBasicBlocks()
+        
+        objPath = astObj.model.getObjectPath(astObj)
+        for block in onlyBlocks:
+            # for each block
+            for blockObj in block.astObjects:
+                blockObjPath = blockObj.model.getObjectPath(blockObj)
+                # if provided object is within block object or vv
+                if len(objPath) <= len(blockObjPath) and objPath==blockObjPath[:len(objPath)] or \
+                       len(objPath) > len(blockObjPath) and blockObjPath==objPath[:len(blockObjPath)]:
+                    # remember this block as having AST object that contains or is contained
+                    #  within the provided AST object
+                    blocks.add(block)
+                    break
+
+        return blocks
