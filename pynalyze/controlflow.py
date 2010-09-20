@@ -95,6 +95,8 @@ class BasicBlock(Block):
         return self
 
     def __str__(self):
+        if hasattr(self.model, 'getBlockId'):
+            return "BasicBlock(%s)" % self.model.getBlockId(self)
         return "BasicBlock(0x%x)" % id(self)
     __repr__=__str__
 
