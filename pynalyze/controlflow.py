@@ -94,10 +94,19 @@ class BasicBlock(Block):
     def getFirstBasicBlock(self):
         return self
 
+    def __str__(self):
+        if hasattr(self.model, 'getBlockId'):
+            return "BasicBlock(%s)" % self.model.getBlockId(self)
+        return "BasicBlock(0x%x)" % id(self)
+    __repr__=__str__
 
 class StartBlock(BasicBlock):
     def __init__(self, model, parentBlock):
         BasicBlock.__init__(self, model, parentBlock, [])
+
+    def __str__(self):
+        return "StartBlock(0x%x)" % id(self)
+    __repr__=__str__
 
 class EndBlock(BasicBlock):
     def __init__(self, model, parentBlock):
@@ -105,6 +114,10 @@ class EndBlock(BasicBlock):
 
     def getNextBasicBlocks(self):
         return []
+
+    def __str__(self):
+        return "EndBlock(0x%x)" % id(self)
+    __repr__=__str__
 
 class ConditionBlock(BasicBlock):
 
@@ -123,6 +136,10 @@ class ConditionBlock(BasicBlock):
             blocks.extend(nextBlocks)
             self._nextBasicBlocks = blocks
         return self._nextBasicBlocks
+
+    def __str__(self):
+        return "ConditionBlock(0x%x)" % id(self)
+    __repr__=__str__
 
 class ControlFlowModel(object):
 
